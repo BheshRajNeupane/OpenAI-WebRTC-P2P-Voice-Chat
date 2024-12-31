@@ -66,6 +66,8 @@ export default function useWebRTCAudioSession(
    */
   const ephemeralUserMessageIdRef = useRef<string | null>(null);
 
+
+
   /**
    * Register a function (tool) so the AI can call it.
    */

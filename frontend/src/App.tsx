@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import "./App.css";
 import useWebRTCAudioSession from "./hooks/useWebrtc";
 import {
@@ -17,8 +17,26 @@ function App() {
     isSessionActive,
     registerFunction,
     handleStartStopClick,
+    stopSession,
+    msgs,
     conversation,
   } = useWebRTCAudioSession("ash", tools);
+
+  // Timer reference for inactivity detection
+  const inactivityTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Reset the inactivity timer on any message or mic activity
+  function resetInactivityTimer() {
+    if (inactivityTimerRef.current) {
+      clearTimeout(inactivityTimerRef.current);
+    }
+    inactivityTimerRef.current = setTimeout(() => {
+      if (isSessionActive) {
+        alert("Session has been inactive for 10 seconds. Stopping session.");
+        stopSession();
+      }
+    }, 30000);
+  }
 
   useEffect(() => {
     // Register all functions
@@ -28,6 +46,18 @@ function App() {
     registerFunction("takeScreenshot", takeScreenshot);
     registerFunction("copyToClipboard", copyToClipboard);
   }, [registerFunction]);
+
+  useEffect(() => {
+    if (isSessionActive) {
+      resetInactivityTimer();
+    }
+  }, [msgs, isSessionActive]);
+
+  // Stop the session if the user says "bye"
+  conversation.map((msg) => {
+    if (msg?.text.includes("bye") || msg?.text.includes("have a great day"))
+      handleStartStopClick();
+  });
 
   return (
     <div>
