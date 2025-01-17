@@ -16,7 +16,7 @@ app.get("/", (req, res) => {
   res.json({ message: "Welcome to the API" });
 });
 
-app.post("/api/session", async (req, res) => {
+app.get("/api/session", async (req, res) => {
   try {
     if (!process.env.OPENAI_API_KEY) {
       throw new Error(`OPENAI_API_KEY is not set`);
@@ -34,8 +34,14 @@ app.post("/api/session", async (req, res) => {
           voice: "alloy",
           modalities: ["audio", "text"],
           instructions:
-            "Start conversation with the user by saying 'Hello, how can I help you today?'",
+            "Start conversation with the user by saying 'Hi I am Palm Mind Voice Agent, how can I help you today?'",
           tool_choice: "auto",
+          //RAG
+          tools=[
+            {
+
+          }
+        ]
         }),
       }
     );
@@ -48,11 +54,13 @@ app.post("/api/session", async (req, res) => {
 
     const data = await response.json();
 
+ 
+    
     // Return the JSON response to the client
-    return res.json(data);
+    return res.status(200).json(data);
   } catch (error) {
     console.error("Error fetching session data:", error);
-    return res.json({ error: "Failed to fetch session data" }, { status: 500 });
+    return res.status(500).json({ error: "Failed to fetch session data" },);
   }
 });
 
